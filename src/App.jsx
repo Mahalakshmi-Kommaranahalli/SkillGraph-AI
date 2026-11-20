@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Navbar from './components/Navbar.jsx';
 import ResumeExtractor from './components/ResumeExtractor.jsx';
 import JobDescriptionMatcher from './components/JobDescriptionMatcher.jsx';
@@ -18,6 +18,15 @@ export default function App() {
   const [activeResume, setActiveResume] = useState(SAMPLE_RESUMES[0]);
   const [activeJob, setActiveJob] = useState(JOB_ROLES[0]);
   const [isExportOpen, setIsExportOpen] = useState(false);
+  const [currentTheme, setCurrentTheme] = useState(() => {
+    return localStorage.getItem('skillgraph-theme') || 'ocean';
+  });
+
+  // Apply theme to document element
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    localStorage.setItem('skillgraph-theme', currentTheme);
+  }, [currentTheme]);
 
   // Re-calculate multi-dimensional skill gap analysis dynamically
   const gapAnalysis = useMemo(() => {
@@ -25,8 +34,8 @@ export default function App() {
   }, [activeResume, activeJob]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 font-sans">
-      {/* Navigation Bar */}
+    <div className="min-h-screen flex flex-col font-sans transition-colors duration-300">
+      {/* Navigation Bar with Theme Switcher */}
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -34,6 +43,8 @@ export default function App() {
         activeJob={activeJob}
         gapAnalysis={gapAnalysis}
         onOpenExport={() => setIsExportOpen(true)}
+        currentTheme={currentTheme}
+        onThemeChange={(newTheme) => setCurrentTheme(newTheme)}
       />
 
       {/* Main View Area */}
@@ -135,4 +146,3 @@ export default function App() {
     </div>
   );
 }
-
